@@ -284,6 +284,76 @@ public class SkyscraperConfig implements Configuration {
             return false;
         } else {
 
+
+            int num = 0;
+            int seen = 0;
+            int currentLookingValue;
+
+            //check top looking values
+            if (this.columns.get(this.col).size() == this.DIM) {
+                currentLookingValue = this.lookingValues[0][this.col];
+                for (int i = 0; i < this.DIM; i++) {
+                    if (this.board[i][this.col] > num) {
+                        seen++;
+                        num = this.board[i][this.col];
+                    }
+                }
+                if (seen > currentLookingValue) {
+                    return false;
+                } else if (this.columns.get(this.col).size() == this.DIM && seen != currentLookingValue) {
+                    return false;
+                }
+            }
+
+            //check left looking values
+            if (this.rows.get(this.row).size() == this.DIM) {
+                num = 0;
+                seen = 0;
+                currentLookingValue = this.lookingValues[3][this.row];
+                for (int i = 0; i < this.DIM; i++) {
+                    if (this.board[this.row][i] > num) {
+                        seen++;
+                        num = this.board[this.row][i];
+                    }
+                }
+                if (seen > currentLookingValue) {
+                    return false;
+                } else if (this.columns.get(this.row).size() == this.DIM && seen != currentLookingValue) {
+                    return false;
+                }
+            }
+
+            //check bottom looking values
+            if (this.columns.get(this.col).size() == this.DIM) {
+                num = 0;
+                seen = 0;
+                currentLookingValue = this.lookingValues[2][this.col];
+                for (int i = this.DIM - 1; i >= 0; i--) {
+                    if (this.board[i][this.col] > num) {
+                        seen++;
+                        num = this.board[i][this.col];
+                    }
+                }
+                if (seen != currentLookingValue) {
+                    return false;
+                }
+            }
+
+            //check right looking values
+            if (this.rows.get(this.row).size() == this.DIM) {
+                num = 0;
+                seen = 0;
+                currentLookingValue = this.lookingValues[1][this.row];
+                for (int i = this.DIM - 1; i >= 0; i--) {
+                    if (this.board[this.row][i] > num) {
+                        seen++;
+                        num = this.board[this.row][i];
+                    }
+                }
+                if (seen != currentLookingValue) {
+                    return false;
+                }
+            }
         }
 
 
