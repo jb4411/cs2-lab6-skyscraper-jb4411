@@ -97,7 +97,9 @@ public class SkyscraperConfig implements Configuration {
 
         for (int r=0; r<this.DIM; r++) {
             System.arraycopy(copy.board[r], 0, this.board[r], 0, this.DIM);
-            System.arraycopy(copy.lookingValues[r], 0, this.lookingValues[r], 0, 4);
+            if (r < 4) {
+                System.arraycopy(copy.lookingValues[r], 0, this.lookingValues[r], 0, this.DIM);
+            }
         }
         this.board[this.row][this.col] = num;
     }
@@ -146,9 +148,9 @@ public class SkyscraperConfig implements Configuration {
                         r = j;
                         c = 0;
                     }*/
-                    this.board[r][c] = 4;
-                    this.rows.get(r).add(4);
-                    this.columns.get(c).add(4);
+                    this.board[r][c] = this.DIM;
+                    this.rows.get(r).add(this.DIM);
+                    this.columns.get(c).add(this.DIM);
                 }
             }
         }
