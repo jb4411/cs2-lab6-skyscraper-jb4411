@@ -266,9 +266,11 @@ public class SkyscraperConfig implements Configuration {
                 this.col++;
             }
         }
-        for (int i = 1; i <= this.DIM; i++) {
-            SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
-            successors.add(child);
+        if (this.col <= this.DIM-1) {
+            for (int i = 1; i <= this.DIM; i++) {
+                SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
+                successors.add(child);
+            }
         }
 
         return successors;
