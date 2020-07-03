@@ -202,7 +202,7 @@ public class SkyscraperConfig implements Configuration {
         }
     }
 
-    public Boolean quickFill() {
+    public void quickFill() {
         for (int i = 0; i < this.DIM; i++) {
             if (this.rows.get(i).size() == this.DIM - 1) {
                 for (int j = 0; j < this.DIM; j++) {
@@ -218,7 +218,22 @@ public class SkyscraperConfig implements Configuration {
                 }
             }
         }
-        return this.isGoal();
+
+        for (int i = 0; i < this.DIM; i++) {
+            if (this.columns.get(i).size() == this.DIM - 1) {
+                for (int j = 0; j < this.DIM; j++) {
+                    if (this.board[j][i] == EMPTY) {
+                        for (int k = 1; k <= this.DIM; k++) {
+                            if (!this.columns.get(i).contains(k)) {
+                                this.board[j][i] = k;
+                                this.columns.get(i).add(k);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -228,31 +243,30 @@ public class SkyscraperConfig implements Configuration {
      */
     @Override
     public Collection<Configuration> getSuccessors() {
+        ArrayList<Configuration> successors = new ArrayList<>();
         if (!preFilled) {
             this.preFill();
         }
-        ArrayList<Configuration> successors = new ArrayList<>();
-        if (!this.quickFill()) {
+        //this.quickFill();
 
+        if (this.col == this.DIM - 1) {
+            this.col = 0;
+            this.row += 1;
+        } else {
+            this.col++;
+        }
+
+        while (this.board[this.row][this.col] != EMPTY) {
             if (this.col == this.DIM - 1) {
                 this.col = 0;
                 this.row += 1;
             } else {
                 this.col++;
             }
-
-            while (this.board[this.row][this.col] != EMPTY) {
-                if (this.col == this.DIM - 1) {
-                    this.col = 0;
-                    this.row += 1;
-                } else {
-                    this.col++;
-                }
-            }
-            for (int i = 1; i <= this.DIM; i++) {
-                SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
-                successors.add(child);
-            }
+        }
+        for (int i = 1; i <= this.DIM; i++) {
+            SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
+            successors.add(child);
         }
 
         return successors;
