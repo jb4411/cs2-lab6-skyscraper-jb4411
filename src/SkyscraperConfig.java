@@ -15,6 +15,12 @@ public class SkyscraperConfig implements Configuration {
     /** empty cell value display */
     public final static char EMPTY_CELL = '.';
 
+    private int DIM;
+    private int[][] lookingValues;
+    private int[][] board;
+    private int row;
+    private int col;
+
     /**
      * Constructor
      *
@@ -35,8 +41,25 @@ public class SkyscraperConfig implements Configuration {
     SkyscraperConfig(String filename) throws FileNotFoundException {
         Scanner f = new Scanner(new File(filename));
 
-        // TO DO
+        this.DIM = f.nextInt();
 
+        this.lookingValues = new int[this.DIM][this.DIM];
+        this.board = new int[this.DIM][this.DIM];
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < this.DIM; j++) {
+                this.lookingValues[i][j] = f.nextInt();
+            }
+        }
+
+        for (int i = 0; i < this.DIM; i++) {
+            for (int j = 0; j < this.DIM; j++) {
+                this.board[i][j] = f.nextInt();
+            }
+        }
+
+        this.row = 0;
+        this.col = 0;
         // close the input file
         f.close();
     }
@@ -47,9 +70,14 @@ public class SkyscraperConfig implements Configuration {
      * @param copy SkyscraperConfig instance
      */
     public SkyscraperConfig(SkyscraperConfig copy) {
+        this.DIM = copy.DIM;
+        this.row = copy.row;
+        this.col = copy.col;
+        this.board = new int[copy.DIM][copy.DIM];
 
-        // TODO
-
+        for (int r=0; r<this.DIM; r++) {
+            System.arraycopy(copy.board[r], 0, this.board[r], 0, this.DIM);
+        }
     }
 
     @Override
@@ -104,9 +132,28 @@ public class SkyscraperConfig implements Configuration {
      */
     @Override
     public String toString() {
+        StringBuilder output = new StringBuilder();
+        output.append("\n   ");
+        for (int val : this.lookingValues[0]) {
+            output.append(val).append(" ");
+        }
+        output.append("\n   ").append("-".repeat(Math.max(0, 2 * this.DIM-1))).append("\n");
 
-        // TODO
+        int lookValue = 0;
+        for (int i = 0; i < this.DIM; i++) {
+            output.append(this.lookingValues[3][lookValue]).append("/ ");
+            for (int j = 0; j < this.DIM; j++) {
+                output.append(this.board[i][j]).append(" ");
+            }
+            output.append("/").append(this.lookingValues[1][lookValue]).append("\n");
+            lookValue++;
+        }
+        output.append("   ").append("-".repeat(Math.max(0, 2 * this.DIM-1))).append("\n   ");
+        for (int val : this.lookingValues[2]) {
+            output.append(val).append(" ");
+        }
+        output.append("\n");
 
-        return "SkyscraperConfig::toString() not implemented";  // remove
+        return new String(output);
     }
 }
