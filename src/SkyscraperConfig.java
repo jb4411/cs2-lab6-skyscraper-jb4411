@@ -23,7 +23,7 @@ public class SkyscraperConfig implements Configuration {
     private ArrayList<HashSet<Integer>> rows;
     private ArrayList<HashSet<Integer>> columns;
     private Boolean preFilled = false;
-    private boolean run = true;
+    private Boolean run = true;
 
     private int oldRow;
     private int oldCol;
@@ -84,6 +84,7 @@ public class SkyscraperConfig implements Configuration {
 
         this.row = 0;
         this.col = 0;
+
         // close the input file
         f.close();
     }
@@ -105,6 +106,7 @@ public class SkyscraperConfig implements Configuration {
         this.rows = new ArrayList<>();
         this.columns = new ArrayList<>();
         this.placed = copy.placed;
+        this.preFilled = copy.preFilled;
 
         for (int i = 0; i < this.DIM; i++) {
             this.rows.add(i,new HashSet<>(copy.rows.get(i)));
@@ -383,6 +385,43 @@ public class SkyscraperConfig implements Configuration {
         }
     }
 
+    public void quickFill4() {
+        System.out.println("qucik filled");
+        for (int i = 0; i < this.DIM; i++) {
+            if (this.rows.get(i).size() == this.DIM) {
+                for (int j = 0; j < this.DIM; j++) {
+                    if (this.board[i][j] == EMPTY) {
+                        for (int k = 1; k <= this.DIM; k++) {
+                            if (!this.rows.get(i).contains(k)) {
+                                this.board[i][j] = k;
+                                this.rows.get(i).add(k);
+                                this.columns.get(j).add(k);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < this.DIM; i++) {
+            if (this.columns.get(i).size() == this.DIM) {
+                for (int j = 0; j < this.DIM; j++) {
+                    if (this.board[j][i] == EMPTY) {
+                        for (int k = 1; k <= this.DIM; k++) {
+                            if (!this.columns.get(i).contains(k)) {
+                                this.board[j][i] = k;
+                                this.rows.get(i).add(k);
+                                this.columns.get(j).add(k);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * getSuccessors
      *
@@ -393,7 +432,7 @@ public class SkyscraperConfig implements Configuration {
         ArrayList<Configuration> successors = new ArrayList<>();
         if (!preFilled) {
             this.preFill();
-            //this.quickFill2();
+            //this.quickFill4();
         }
         //this.quickFill();
         //this.quickFill3();
@@ -551,7 +590,8 @@ public class SkyscraperConfig implements Configuration {
             int seen = 0;
 
             //check top looking values
-            if (this.columns.get(this.col).size() == this.DIM) {
+            HashSet<Integer> cu = this.columns.get(this.col);
+            if (cu.size() == this.DIM) {
                 currentLookingValue = this.lookingValues[0][this.col];
                 for (int i = 0; i < this.DIM; i++) {
                     if (this.board[i][this.col] > num) {
