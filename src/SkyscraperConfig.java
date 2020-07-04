@@ -25,10 +25,14 @@ public class SkyscraperConfig implements Configuration {
     private Boolean preFilled = false;
     private Boolean run = true;
 
+    private HashMap<ArrayList<Integer>,HashSet<Integer>> hashBoard;
+
+    private ArrayList<Integer> possibleValues;
+
     private int oldRow;
     private int oldCol;
 
-
+    ArrayList<ArrayList<Integer>> placeable;
     private boolean placed;
 
     /**
@@ -49,6 +53,7 @@ public class SkyscraperConfig implements Configuration {
      *  @throws FileNotFoundException if file not found
      */
     SkyscraperConfig(String filename) throws FileNotFoundException {
+        this.placeable = new ArrayList<>();
         this.oldRow = 0;
         this.oldCol = 0;
 
@@ -56,6 +61,12 @@ public class SkyscraperConfig implements Configuration {
 
         this.DIM = f.nextInt();
 
+        this.possibleValues = new ArrayList<>();
+        for (int i = 1; i <= this.DIM; i++) {
+            this.possibleValues.add(i);
+        }
+
+        this.hashBoard = new HashMap<>();
         this.placed = true;
         this.lookingValues = new int[4][this.DIM];
         this.board = new int[this.DIM][this.DIM];
@@ -79,8 +90,15 @@ public class SkyscraperConfig implements Configuration {
                 this.board[i][j] = num;
                 this.rows.get(i).add(num);
                 this.columns.get(j).add(num);
+                if (num == 0) {
+                    this.hashBoard.put(new ArrayList<>(Arrays.asList(i,j)), new HashSet<>(possibleValues));
+                } else {
+                    this.hashBoard.put(new ArrayList<>(Arrays.asList(i,j)), new HashSet<>(num));
+                }
             }
         }
+
+        this.updateHashBoard();
 
         this.row = 0;
         this.col = 0;
@@ -88,6 +106,53 @@ public class SkyscraperConfig implements Configuration {
         // close the input file
         f.close();
     }
+
+    public void updateHashBoard() {
+        for (ArrayList<Integer> key : this.hashBoard.keySet()) {
+            if (this.hashBoard.get(key).size() == 1) {
+                int cRow = key.get(0);
+                int cCol = key.get(1);
+                int val = 0;
+                for (int element : this.hashBoard.get(key)) {
+                    val = element;
+                }
+
+                for (ArrayList<Integer> cKey : this.hashBoard.keySet()) {
+                    if (this.hashBoard.get(cKey).size() > 1) {
+                        if (cKey.get(0) == cRow || cKey.get(1) == cCol) {
+                            this.hashBoard.get(cKey).remove(val);
+                            if (this.hashBoard.get(cKey).size() == 1) {
+                                this.placeable.add(new ArrayList<>(cKey));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+    public void updateHashBoard() {
+        for (ArrayList<Integer> key : this.hashBoard.keySet()) {
+            if (this.hashBoard.get(key).size() == 1) {
+                int cRow = key.get(0);
+                int cCol = key.get(1);
+                int val = 0;
+                for (int element : this.hashBoard.get(key)) {
+                    val = element;
+                }
+
+                for (ArrayList<Integer> cKey : this.hashBoard.keySet()) {
+                    if (this.hashBoard.get(cKey).size() > 1) {
+                        if (cKey.get(0) == cRow || cKey.get(1) == cCol) {
+                            this.hashBoard.get(cKey).remove(val);
+                        }
+                    }
+                }
+            }
+        }
+    }
+     */
 
     /**
      * Copy constructor
@@ -107,6 +172,9 @@ public class SkyscraperConfig implements Configuration {
         this.columns = new ArrayList<>();
         this.placed = copy.placed;
         this.preFilled = copy.preFilled;
+        this.hashBoard = new HashMap<>();
+        this.hashBoard.putAll(copy.hashBoard);
+        this.placeable = new ArrayList<>();
 
         for (int i = 0; i < this.DIM; i++) {
             this.rows.add(i,new HashSet<>(copy.rows.get(i)));
@@ -119,10 +187,13 @@ public class SkyscraperConfig implements Configuration {
         for (int i = 0; i < 4; i++) {
             System.arraycopy(copy.lookingValues[i], 0, this.lookingValues[i], 0, this.DIM);
         }
+        this.placeable.addAll(copy.placeable);
 
         if (this.board[this.row][this.col] == EMPTY) {
             this.board[this.row][this.col] = num;
         }
+        //this.hashBoard.get(new ArrayList<>(Arrays.asList(this.row,this.col))).remove(num);
+        //this.updateHashBoard();
     }
 
     @Override
@@ -475,19 +546,31 @@ public class SkyscraperConfig implements Configuration {
         } else {
             this.col++;
         }*/
-        while (this.board[this.row][this.col] != EMPTY) {
-            if (this.col < this.DIM - 1) {
-                this.col++;
-            } else if (this.col == this.DIM - 1 && this.row < this.DIM - 1) {
-                this.col = 0;
-                this.row += 1;
-            } else {
-                this.col = this.DIM - 1;
-                this.row = this.DIM - 1;
-                this.placed = false;
-                break;
+
+        if (this.placeable.size() < 0) {
+            ArrayList<Integer> cords = this.placeable.remove(0);
+            this.oldRow = this.row;
+            this.oldCol = this.col;
+            this.row = cords.get(0);
+            this.col = cords.get(1);
+        } else {
+            this.row = this.oldRow;
+            this.col = this.oldCol;
+            while (this.board[this.row][this.col] != EMPTY) {
+                if (this.col < this.DIM - 1) {
+                    this.col++;
+                } else if (this.col == this.DIM - 1 && this.row < this.DIM - 1) {
+                    this.col = 0;
+                    this.row += 1;
+                } else {
+                    this.col = this.DIM - 1;
+                    this.row = this.DIM - 1;
+                    this.placed = false;
+                    break;
+                }
             }
         }
+
 
         for (int i = 1; i <= this.DIM; i++) {
             if (!this.rows.get(this.row).contains(i) && !this.columns.get(this.col).contains(i)) {
@@ -655,6 +738,7 @@ public class SkyscraperConfig implements Configuration {
 
         this.rows.get(this.row).add(current);
         this.columns.get(this.col).add(current);
+        this.hashBoard.remove(current);
 
         return true;
     }
