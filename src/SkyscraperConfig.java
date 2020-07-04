@@ -363,16 +363,15 @@ public class SkyscraperConfig implements Configuration {
 
         if (this.columns.get(this.col).size() == this.DIM) {
             for (int j = 0; j < this.DIM; j++) {
-                if (this.board[j][i] == EMPTY) {
+                if (this.board[j][this.col] == EMPTY) {
                     for (int k = 1; k <= this.DIM; k++) {
-                        if (!this.columns.get(i).contains(k)) {
-                            this.board[j][i] = k;
+                        if (!this.columns.get(this.col).contains(k)) {
+                            this.board[j][this.col] = k;
                             this.oldRow = this.row;
                             this.oldCol = this.col;
-                            this.row = i;
-                            this.col = j;
+                            this.row = j;
                             if (!this.isValid()) {
-                                this.board[j][i] = 0;
+                                this.board[j][this.col] = 0;
                             }
                             this.row = this.oldRow;
                             this.col = this.oldCol;
@@ -397,7 +396,7 @@ public class SkyscraperConfig implements Configuration {
             //this.quickFill2();
         }
         //this.quickFill();
-        this.quickFill3();
+        //this.quickFill3();
 
 
         /*boolean valid = true;
@@ -452,10 +451,10 @@ public class SkyscraperConfig implements Configuration {
         }
 
         for (int i = 1; i <= this.DIM; i++) {
-            //if (!this.rows.get(this.row).contains(i) && !this.columns.get(this.col).contains(i)) {
+            if (!this.rows.get(this.row).contains(i) && !this.columns.get(this.col).contains(i)) {
                 SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
                 successors.add(child);
-            //}
+            }
         }
 
 
