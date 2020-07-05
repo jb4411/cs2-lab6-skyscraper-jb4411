@@ -75,7 +75,7 @@ public class SkyscraperConfig implements Configuration {
             this.possibleValues.add(i);
         }
 
-        this.hashBoard = new HashMap<>();
+        //this.hashBoard = new HashMap<>();
         this.placed = true;
         this.lookingValues = new int[4][this.DIM];
         this.board = new int[this.DIM][this.DIM];
@@ -230,7 +230,7 @@ public class SkyscraperConfig implements Configuration {
         this.columns = new ArrayList<>();
         this.placed = copy.placed;
         this.preFilled = copy.preFilled;
-        this.hashBoard = new HashMap<>();
+        //this.hashBoard = new HashMap<>();
         //this.hashBoard.putAll(copy.hashBoard);
         //this.placeable = new ArrayList<>();
 
