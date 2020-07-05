@@ -32,8 +32,13 @@ public class SkyscraperConfig implements Configuration {
     private int oldRow;
     private int oldCol;
 
-    ArrayList<ArrayList<Integer>> placeable;
+    private ArrayList<ArrayList<Integer>> placeable;
     private boolean placed;
+
+    private boolean possible;
+
+    private int size;
+    private int fullSize;
 
     /**
      * Constructor
@@ -53,6 +58,8 @@ public class SkyscraperConfig implements Configuration {
      *  @throws FileNotFoundException if file not found
      */
     SkyscraperConfig(String filename) throws FileNotFoundException {
+        this.size = 0;
+        this.possible = true;
         this.placeable = new ArrayList<>();
         this.oldRow = 0;
         this.oldCol = 0;
@@ -60,6 +67,8 @@ public class SkyscraperConfig implements Configuration {
         Scanner f = new Scanner(new File(filename));
 
         this.DIM = f.nextInt();
+
+        this.fullSize = this.DIM*this.DIM;
 
         this.possibleValues = new ArrayList<>();
         for (int i = 1; i <= this.DIM; i++) {
@@ -79,12 +88,42 @@ public class SkyscraperConfig implements Configuration {
         }
 
         for (int i = 0; i < 4; i++) {
+            boolean seen1 = false;
+            boolean seenDIM = false;
             for (int j = 0; j < this.DIM; j++) {
-                this.lookingValues[i][j] = f.nextInt();
+                int tempNum = f.nextInt();
+                if (tempNum == 1) {
+                    if (!seen1) {
+                        seen1 = true;
+                    } else {
+                        this.possible = false;
+                        this.preFilled = true;
+                    }
+                } else if (tempNum == this.DIM) {
+                    if (!seenDIM) {
+                        seenDIM = true;
+                    } else {
+                        this.possible = false;
+                        this.preFilled = true;
+                    }
+                }
+                this.lookingValues[i][j] = tempNum;
             }
         }
 
         for (int i = 0; i < this.DIM; i++) {
+            for (int j = 0; j < this.DIM; j++) {
+                int token = f.nextInt();
+                this.board[i][j] = token;
+                if (token != 0) {
+                    this.rows.get(i).add(token);
+                    this.columns.get(j).add(token);
+                    this.size++;
+                }
+            }
+        }
+
+        /*for (int i = 0; i < this.DIM; i++) {
             for (int j = 0; j < this.DIM; j++) {
                 int num = f.nextInt();
                 this.board[i][j] = num;
@@ -96,9 +135,9 @@ public class SkyscraperConfig implements Configuration {
                     this.hashBoard.put(new ArrayList<>(Arrays.asList(i,j)), new HashSet<>(num));
                 }
             }
-        }
+        }*/
 
-        this.updateHashBoard();
+        //this.updateHashBoard();
 
         this.row = 0;
         this.col = 0;
@@ -117,7 +156,23 @@ public class SkyscraperConfig implements Configuration {
                     val = element;
                 }
 
-                for (ArrayList<Integer> cKey : this.hashBoard.keySet()) {
+                for (int i = 1; i <= this.DIM; i++) {
+                    ArrayList<Integer> cKey = new ArrayList<>(Arrays.asList(i, this.col));
+                    ArrayList<Integer> rKey = new ArrayList<>(Arrays.asList(this.row, i));
+                    if (this.hashBoard.get(cKey).size() > 1) {
+                        this.hashBoard.get(cKey).remove(val);
+                        if (this.hashBoard.get(cKey).size() == 1) {
+                            this.placeable.add(new ArrayList<>(cKey));
+                        }
+                    } else if (this.hashBoard.get(rKey).size() > 1) {
+                        this.hashBoard.get(rKey).remove(val);
+                        if (this.hashBoard.get(rKey).size() == 1) {
+                            this.placeable.add(new ArrayList<>(rKey));
+                        }
+                    }
+                }
+
+                /*for (ArrayList<Integer> cKey : this.hashBoard.keySet()) {
                     if (this.hashBoard.get(cKey).size() > 1) {
                         if (cKey.get(0) == cRow || cKey.get(1) == cCol) {
                             this.hashBoard.get(cKey).remove(val);
@@ -126,7 +181,7 @@ public class SkyscraperConfig implements Configuration {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
     }
@@ -160,6 +215,9 @@ public class SkyscraperConfig implements Configuration {
      * @param copy SkyscraperConfig instance
      */
     public SkyscraperConfig(SkyscraperConfig copy, int row, int col, int num) {
+        this.size = copy.size;
+        this.fullSize = copy.fullSize;
+        this.possible = copy.possible;
         this.oldCol = copy.oldCol;
         this.oldRow = copy.oldRow;
 
@@ -173,8 +231,8 @@ public class SkyscraperConfig implements Configuration {
         this.placed = copy.placed;
         this.preFilled = copy.preFilled;
         this.hashBoard = new HashMap<>();
-        this.hashBoard.putAll(copy.hashBoard);
-        this.placeable = new ArrayList<>();
+        //this.hashBoard.putAll(copy.hashBoard);
+        //this.placeable = new ArrayList<>();
 
         for (int i = 0; i < this.DIM; i++) {
             this.rows.add(i,new HashSet<>(copy.rows.get(i)));
@@ -187,21 +245,32 @@ public class SkyscraperConfig implements Configuration {
         for (int i = 0; i < 4; i++) {
             System.arraycopy(copy.lookingValues[i], 0, this.lookingValues[i], 0, this.DIM);
         }
-        this.placeable.addAll(copy.placeable);
+        //this.placeable.addAll(copy.placeable);
 
         if (this.board[this.row][this.col] == EMPTY) {
             this.board[this.row][this.col] = num;
         }
-        //this.hashBoard.get(new ArrayList<>(Arrays.asList(this.row,this.col))).remove(num);
+        //this.hashBoard.put(new ArrayList<>(Arrays.asList(this.row,this.col)), new HashSet<>(num));
         //this.updateHashBoard();
     }
 
     @Override
     public boolean isGoal() {
-        return this.col == this.DIM - 1 && this.row == this.DIM - 1;
+        /*boolean result = this.col == this.DIM - 1 && this.row == this.DIM - 1;
+        if (!result) {
+            return false;
+        }
+        for (int i = 0; i < this.DIM; i++) {
+            if (this.rows.get(i).size() != this.DIM ||this.columns.get(i).size() != this.DIM) {
+                return false;
+            }
+        }
+        return true;*/
+        return this.size == this.fullSize;
     }
 
     public void preFill() {
+        HashSet<ArrayList<Integer>> placed = new HashSet<>();
         this.preFilled = true;
         //prefill
         for (int i = 0; i < 4; i++) {
@@ -243,6 +312,7 @@ public class SkyscraperConfig implements Configuration {
                     this.board[r][c] = this.DIM;
                     this.rows.get(r).add(this.DIM);
                     this.columns.get(c).add(this.DIM);
+                    placed.add(new ArrayList<>(Arrays.asList(r,c)));
                 }
             }
         }
@@ -254,6 +324,7 @@ public class SkyscraperConfig implements Configuration {
                     this.board[j-1][i] = j;
                     this.rows.get(j-1).add(j);
                     this.columns.get(i).add(j);
+                    placed.add(new ArrayList<>(Arrays.asList(j-1,i)));
                 }
             }
         }
@@ -267,6 +338,7 @@ public class SkyscraperConfig implements Configuration {
                     this.rows.get(j-1).add(num);
                     this.columns.get(i).add(num);
                     num++;
+                    placed.add(new ArrayList<>(Arrays.asList(j-1,i)));
                 }
             }
         }
@@ -278,6 +350,7 @@ public class SkyscraperConfig implements Configuration {
                     this.board[i][j-1] = j;
                     this.rows.get(i).add(j);
                     this.columns.get(j-1).add(j);
+                    placed.add(new ArrayList<>(Arrays.asList(i,j-1)));
                 }
             }
         }
@@ -291,9 +364,11 @@ public class SkyscraperConfig implements Configuration {
                     this.rows.get(i).add(num);
                     this.columns.get(j-1).add(num);
                     num++;
+                    placed.add(new ArrayList<>(Arrays.asList(i,j-1)));
                 }
             }
         }
+        this.size += placed.size();
     }
 
     public HashMap<Integer, Integer> quickFill() {
@@ -501,8 +576,10 @@ public class SkyscraperConfig implements Configuration {
     @Override
     public Collection<Configuration> getSuccessors() {
         ArrayList<Configuration> successors = new ArrayList<>();
-        if (!preFilled) {
-            this.preFill();
+        if (!this.preFilled) {
+            if (possible) {
+                this.preFill();
+            }
             //this.quickFill4();
         }
         //this.quickFill();
@@ -547,15 +624,15 @@ public class SkyscraperConfig implements Configuration {
             this.col++;
         }*/
 
-        if (this.placeable.size() < 0) {
+        /*if (this.placeable.size() > 0) {
             ArrayList<Integer> cords = this.placeable.remove(0);
             this.oldRow = this.row;
             this.oldCol = this.col;
             this.row = cords.get(0);
             this.col = cords.get(1);
-        } else {
-            this.row = this.oldRow;
-            this.col = this.oldCol;
+        } else {*/
+            //this.row = this.oldRow;
+            //this.col = this.oldCol;
             while (this.board[this.row][this.col] != EMPTY) {
                 if (this.col < this.DIM - 1) {
                     this.col++;
@@ -569,13 +646,15 @@ public class SkyscraperConfig implements Configuration {
                     break;
                 }
             }
-        }
+        //}
 
 
         for (int i = 1; i <= this.DIM; i++) {
             if (!this.rows.get(this.row).contains(i) && !this.columns.get(this.col).contains(i)) {
                 SkyscraperConfig child = new SkyscraperConfig(this, this.row, this.col, i);
                 successors.add(child);
+            } else if (this.isGoal()) {
+                successors.add(this);
             }
         }
 
@@ -590,6 +669,9 @@ public class SkyscraperConfig implements Configuration {
      */
     @Override
     public boolean isValid() {
+        if (!this.possible) {
+            return false;
+        }
         if (!this.placed) {
             return true;
         }
@@ -599,7 +681,17 @@ public class SkyscraperConfig implements Configuration {
         } else {
             int currentLookingValue;
 
+            //fast left check (is left value too big?)
+            currentLookingValue = this.lookingValues[3][this.row];
+            if (this.DIM - currentLookingValue < this.board[this.row][0]-1) {
+                return false;
+            }
 
+            //fast top check (is top value too big?)
+            currentLookingValue = this.lookingValues[0][this.col];
+            if (this.DIM - currentLookingValue < this.board[0][this.col]-1) {
+                return false;
+            }
 
             /*
             //fast checks
@@ -669,26 +761,11 @@ public class SkyscraperConfig implements Configuration {
             }*/
 
             //slow checks
-            int num = 0;
-            int seen = 0;
-
-            //check top looking values
-            HashSet<Integer> cu = this.columns.get(this.col);
-            if (cu.size() == this.DIM) {
-                currentLookingValue = this.lookingValues[0][this.col];
-                for (int i = 0; i < this.DIM; i++) {
-                    if (this.board[i][this.col] > num) {
-                        seen++;
-                        num = this.board[i][this.col];
-                    }
-                }
-                if (seen != currentLookingValue) {
-                    return false;
-                }
-            }
+            int num;
+            int seen;
 
             //check left looking values
-            if (this.rows.get(this.row).size() == this.DIM) {
+            if (this.rows.get(this.row).size() == this.DIM-1) {
                 num = 0;
                 seen = 0;
                 currentLookingValue = this.lookingValues[3][this.row];
@@ -703,8 +780,24 @@ public class SkyscraperConfig implements Configuration {
                 }
             }
 
+            //check top looking values
+            if (this.columns.get(this.col).size() == this.DIM-1) {
+                num = 0;
+                seen = 0;
+                currentLookingValue = this.lookingValues[0][this.col];
+                for (int i = 0; i < this.DIM; i++) {
+                    if (this.board[i][this.col] > num) {
+                        seen++;
+                        num = this.board[i][this.col];
+                    }
+                }
+                if (seen != currentLookingValue) {
+                    return false;
+                }
+            }
+
             //check bottom looking values
-            if (this.columns.get(this.col).size() == this.DIM) {
+            if (this.columns.get(this.col).size() == this.DIM-1) {
                 num = 0;
                 seen = 0;
                 currentLookingValue = this.lookingValues[2][this.col];
@@ -720,7 +813,7 @@ public class SkyscraperConfig implements Configuration {
             }
 
             //check right looking values
-            if (this.rows.get(this.row).size() == this.DIM) {
+            if (this.rows.get(this.row).size() == this.DIM-1) {
                 num = 0;
                 seen = 0;
                 currentLookingValue = this.lookingValues[1][this.row];
@@ -738,7 +831,8 @@ public class SkyscraperConfig implements Configuration {
 
         this.rows.get(this.row).add(current);
         this.columns.get(this.col).add(current);
-        this.hashBoard.remove(current);
+        this.size++;
+        //this.hashBoard.remove(current);
 
         return true;
     }
