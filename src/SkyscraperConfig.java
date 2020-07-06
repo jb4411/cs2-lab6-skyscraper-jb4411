@@ -15,21 +15,29 @@ public class SkyscraperConfig implements Configuration {
     /** empty cell value display */
     public final static char EMPTY_CELL = '.';
 
+    /** the length of one side of the board */
     private int DIM;
+    /** the grid of looking values */
     private int[][] lookingValues;
+    /** the grid representing the board */
     private int[][] board;
+    /** the current row */
     private int row;
+    /** the current column */
     private int col;
+    /** a list of sets with a set for each row in the board */
     private ArrayList<HashSet<Integer>> rows;
+    /** a list of sets with a set for each column in the board */
     private ArrayList<HashSet<Integer>> columns;
+    /** whether or not the board has been pre-processed */
     private Boolean preFilled = false;
-
-    private int oldRow;
-    private int oldCol;
-
+    /** whether or not a number was placed */
     private boolean placed;
+    /** whether or not the board is solvable based on the looking values */
     private boolean possible;
+    /** the current size of the board */
     private int size;
+    /** the max size of the board */
     private int fullSize;
 
     /**
@@ -52,8 +60,6 @@ public class SkyscraperConfig implements Configuration {
     SkyscraperConfig(String filename) throws FileNotFoundException {
         this.size = 0;
         this.possible = true;
-        this.oldRow = 0;
-        this.oldCol = 0;
 
         Scanner f = new Scanner(new File(filename));
 
@@ -123,8 +129,6 @@ public class SkyscraperConfig implements Configuration {
         this.size = copy.size;
         this.fullSize = copy.fullSize;
         this.possible = copy.possible;
-        this.oldCol = copy.oldCol;
-        this.oldRow = copy.oldRow;
 
         this.DIM = copy.DIM;
         this.row = row;
@@ -158,6 +162,10 @@ public class SkyscraperConfig implements Configuration {
         return this.size == this.fullSize;
     }
 
+    /**
+     * Pre-process the board and fill any squares that only have one possible
+     * value based on the looking values.
+     */
     public void preFill() {
         HashSet<ArrayList<Integer>> placed = new HashSet<>();
         this.preFilled = true;
