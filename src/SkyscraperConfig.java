@@ -6,7 +6,7 @@ import java.util.*;
  * Represents a single configuration in the skyscraper puzzle.
  *
  * @author RIT CS
- * @author YOUR NAME HERE
+ * @author Jesse Burdick-Pless jb4411@g.rit.edu
  */
 public class SkyscraperConfig implements Configuration {
     /** empty cell value */
