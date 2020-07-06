@@ -116,6 +116,10 @@ public class SkyscraperConfig implements Configuration {
         this.row = 0;
         this.col = 0;
 
+        if (this.possible) {
+            this.preFill();
+        }
+
         // close the input file
         f.close();
     }
@@ -206,10 +210,12 @@ public class SkyscraperConfig implements Configuration {
                         r = j;
                         c = 0;
                     }*/
+                    if (this.board[r][c] == EMPTY) {
+                        placed.add(new ArrayList<>(Arrays.asList(r, c)));
+                    }
                     this.board[r][c] = this.DIM;
                     this.rows.get(r).add(this.DIM);
                     this.columns.get(c).add(this.DIM);
-                    placed.add(new ArrayList<>(Arrays.asList(r,c)));
                 }
             }
         }
@@ -218,10 +224,12 @@ public class SkyscraperConfig implements Configuration {
         for (int i = 0; i < this.DIM; i++) {
             if (this.lookingValues[0][i] == this.DIM) {
                 for (int j = 1; j <= this.DIM; j++) {
+                    if (this.board[j-1][i] == EMPTY) {
+                        placed.add(new ArrayList<>(Arrays.asList(j - 1, i)));
+                    }
                     this.board[j-1][i] = j;
                     this.rows.get(j-1).add(j);
                     this.columns.get(i).add(j);
-                    placed.add(new ArrayList<>(Arrays.asList(j-1,i)));
                 }
             }
         }
@@ -231,11 +239,13 @@ public class SkyscraperConfig implements Configuration {
             if (this.lookingValues[2][i] == this.DIM) {
                 int num = 1;
                 for (int j = this.DIM; j >= 1; j--) {
+                    if (this.board[j-1][i] == EMPTY) {
+                        placed.add(new ArrayList<>(Arrays.asList(j - 1, i)));
+                    }
                     this.board[j-1][i] = num;
                     this.rows.get(j-1).add(num);
                     this.columns.get(i).add(num);
                     num++;
-                    placed.add(new ArrayList<>(Arrays.asList(j-1,i)));
                 }
             }
         }
@@ -244,10 +254,12 @@ public class SkyscraperConfig implements Configuration {
         for (int i = 0; i < this.DIM; i++) {
             if (this.lookingValues[3][i] == this.DIM) {
                 for (int j = 1; j <= this.DIM; j++) {
+                    if (this.board[i][j-1] == EMPTY) {
+                        placed.add(new ArrayList<>(Arrays.asList(i, j - 1)));
+                    }
                     this.board[i][j-1] = j;
                     this.rows.get(i).add(j);
                     this.columns.get(j-1).add(j);
-                    placed.add(new ArrayList<>(Arrays.asList(i,j-1)));
                 }
             }
         }
@@ -257,11 +269,13 @@ public class SkyscraperConfig implements Configuration {
             if (this.lookingValues[1][i] == this.DIM) {
                 int num = 1;
                 for (int j = this.DIM; j >= 1; j--) {
+                    if (this.board[i][j-1] == EMPTY) {
+                        placed.add(new ArrayList<>(Arrays.asList(i, j - 1)));
+                    }
                     this.board[i][j-1] = num;
                     this.rows.get(i).add(num);
                     this.columns.get(j-1).add(num);
                     num++;
-                    placed.add(new ArrayList<>(Arrays.asList(i,j-1)));
                 }
             }
         }
@@ -276,11 +290,6 @@ public class SkyscraperConfig implements Configuration {
     @Override
     public Collection<Configuration> getSuccessors() {
         ArrayList<Configuration> successors = new ArrayList<>();
-        if (!this.preFilled) {
-            if (possible) {
-                this.preFill();
-            }
-        }
 
         while (this.board[this.row][this.col] != EMPTY) {
             if (this.col < this.DIM - 1) {
