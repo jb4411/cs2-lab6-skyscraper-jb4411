@@ -29,8 +29,6 @@ public class SkyscraperConfig implements Configuration {
     private ArrayList<HashSet<Integer>> rows;
     /** a list of sets with a set for each column in the board */
     private ArrayList<HashSet<Integer>> columns;
-    /** whether or not the board has been pre-processed */
-    private Boolean preFilled = false;
     /** whether or not a number was placed */
     private boolean placed;
     /** whether or not the board is solvable based on the looking values */
@@ -87,14 +85,12 @@ public class SkyscraperConfig implements Configuration {
                         seen1 = true;
                     } else {
                         this.possible = false;
-                        this.preFilled = true;
                     }
                 } else if (tempNum == this.DIM) {
                     if (!seenDIM) {
                         seenDIM = true;
                     } else {
                         this.possible = false;
-                        this.preFilled = true;
                     }
                 }
                 this.lookingValues[i][j] = tempNum;
@@ -142,7 +138,6 @@ public class SkyscraperConfig implements Configuration {
         this.rows = new ArrayList<>();
         this.columns = new ArrayList<>();
         this.placed = copy.placed;
-        this.preFilled = copy.preFilled;
 
         for (int i = 0; i < this.DIM; i++) {
             this.rows.add(i,new HashSet<>(copy.rows.get(i)));
@@ -172,7 +167,6 @@ public class SkyscraperConfig implements Configuration {
      */
     public void preFill() {
         HashSet<ArrayList<Integer>> placed = new HashSet<>();
-        this.preFilled = true;
         //prefill
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < this.DIM; j++) {
