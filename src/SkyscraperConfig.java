@@ -23,16 +23,16 @@ public class SkyscraperConfig implements Configuration {
     private ArrayList<HashSet<Integer>> rows;
     private ArrayList<HashSet<Integer>> columns;
     private Boolean preFilled = false;
-    private Boolean run = true;
+    //private Boolean run = true;
 
-    private HashMap<ArrayList<Integer>,HashSet<Integer>> hashBoard;
+    //private HashMap<ArrayList<Integer>,HashSet<Integer>> hashBoard;
 
-    private ArrayList<Integer> possibleValues;
+    //private ArrayList<Integer> possibleValues;
 
     private int oldRow;
     private int oldCol;
 
-    private ArrayList<ArrayList<Integer>> placeable;
+    //private ArrayList<ArrayList<Integer>> placeable;
     private boolean placed;
 
     private boolean possible;
@@ -60,7 +60,7 @@ public class SkyscraperConfig implements Configuration {
     SkyscraperConfig(String filename) throws FileNotFoundException {
         this.size = 0;
         this.possible = true;
-        this.placeable = new ArrayList<>();
+        //this.placeable = new ArrayList<>();
         this.oldRow = 0;
         this.oldCol = 0;
 
@@ -70,10 +70,10 @@ public class SkyscraperConfig implements Configuration {
 
         this.fullSize = this.DIM*this.DIM;
 
-        this.possibleValues = new ArrayList<>();
+        /*this.possibleValues = new ArrayList<>();
         for (int i = 1; i <= this.DIM; i++) {
             this.possibleValues.add(i);
-        }
+        }*/
 
         //this.hashBoard = new HashMap<>();
         this.placed = true;
@@ -146,7 +146,7 @@ public class SkyscraperConfig implements Configuration {
         f.close();
     }
 
-    public void updateHashBoard() {
+    /*public void updateHashBoard() {
         for (ArrayList<Integer> key : this.hashBoard.keySet()) {
             if (this.hashBoard.get(key).size() == 1) {
                 int cRow = key.get(0);
@@ -181,10 +181,10 @@ public class SkyscraperConfig implements Configuration {
                             }
                         }
                     }
-                }*/
+                }
             }
         }
-    }
+    }*/
 
     /**
     public void updateHashBoard() {
