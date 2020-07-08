@@ -190,20 +190,6 @@ public class SkyscraperConfig implements Configuration {
                             c = 0;
                         }
                     }
-                    /*
-                     if (i == 0) {
-                        r = 0;
-                        c = j;
-                    } else if (i == 1) {
-                        r = j;
-                        c = this.DIM-1;
-                    } else if (i == 2) {
-                        r = this.DIM-1;
-                        c = j;
-                    } else {
-                        r = j;
-                        c = 0;
-                    }*/
                     if (this.board[r][c] == EMPTY) {
                         placed.add(new ArrayList<>(Arrays.asList(r, c)));
                     }
