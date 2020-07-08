@@ -3,7 +3,7 @@
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="Skyscraper" />
     <module name="Skyscraper" />
-    <option name="PROGRAM_PARAMETERS" value="data/test0.txt false" />
+    <option name="PROGRAM_PARAMETERS" value="data/test13.txt false" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
